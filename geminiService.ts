@@ -36,3 +36,43 @@ export async function generateResponse(prompt: string) {
     throw error;
   }
 }
+// -------------------------------
+// EXTRAER DATOS DE UNA OT CON GEMINI
+// -------------------------------
+export async function extractWorkOrderData(imageBase64: string) {
+  const prompt = `
+Eres un analista de órdenes de trabajo. A partir de la imagen proporcionada,
+extrae los siguientes datos:
+
+- Número de OT
+- Tipo de OT (Preventiva o Correctiva)
+- Fecha mínima de cumplimiento o fecha de creación
+- Descripción si existe
+
+Entrega el resultado exclusivamente en JSON con este formato:
+
+{
+  "numero_ot": "",
+  "tipo_ot": "",
+  "fecha": "",
+  "descripcion": ""
+}
+`;
+
+  const client = createClient();
+  const model = client.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+  const result = await model.generateContent([
+    prompt,
+    { inline_data: { data: imageBase64, mime_type: "image/jpeg" } }
+  ]);
+
+  const text = result.response.text();
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    console.warn("La respuesta no fue JSON válido:", text);
+    return null;
+  }
+}
