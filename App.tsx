@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Sidebar } from './components/Sidebar';
-import { WorkOrderTable } from './components/WorkOrderTable';
-import { AdminAssignmentPanel } from './components/AdminAssignmentPanel';
-import { TechnicianDashboard } from './components/TechnicianDashboard';
-import { PlanningTable } from './components/PlanningTable';
-import { KPIDashboard } from './components/KPIDashboard'; // Tu nuevo componente
-import { Login } from './components/Login';
-import { fetchUsers, fetchHistory, fetchPlanning, syncWithGoogleSheet, User, OTData } from './services/sheetService';
-import { extractWorkOrderData } from './services/geminiService';
+// CORRECCIÓN: Quitamos "/components/" y "/services/" porque todo está junto
+import { Sidebar } from './Sidebar';
+import { WorkOrderTable } from './WorkOrderTable';
+import { AdminAssignmentPanel } from './AdminAssignmentPanel';
+import { TechnicianDashboard } from './TechnicianDashboard';
+import { PlanningTable } from './PlanningTable'; 
+import { KPIDashboard } from './KPIDashboard';
+import { Login } from './Login';
+import { fetchUsers, fetchHistory, fetchPlanning, syncWithGoogleSheet, User, OTData } from './sheetService';
+import { extractWorkOrderData } from './geminiService';
 import { Search, RefreshCw, Menu, Camera, Loader2, BarChart3, ClipboardList, PenTool, PieChart } from 'lucide-react';
-import ChatAssistant from './components/ChatAssistant';
+import ChatAssistant from './ChatAssistant';
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
