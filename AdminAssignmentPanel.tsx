@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { extractWorkOrderData } from '../services/geminiService';
-import { assignOT } from '../services/sheetService';
+import { extractWorkOrderData } from './geminiService';
+import { assignOT } from './sheetService';
 import { User } from '../types';
 import { CheckCircle, Upload, Trash2, Loader2, FileText } from 'lucide-react';
 
