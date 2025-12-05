@@ -86,6 +86,7 @@ export async function extractWorkOrderData(file: File) {
     const model = client.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const fileBytes = await file.arrayBuffer();
+    const base64Data = btoa(String.fromCharCode(...new Uint8Array(fileBytes)));
 
     const prompt = `
       Eres un sistema que extrae datos de Órdenes de Trabajo.
@@ -101,34 +102,31 @@ export async function extractWorkOrderData(file: File) {
       Si un dato no existe, déjalo vacío.
     `;
 
-    const result = await model.generateContent({
-      contents: [
-        {
-          role: "user",
-          parts: [
-            { text: prompt },
-            {
-              inlineData: {
-  mimeType: file.type,
-  data: btoa(
-    String.fromCharCode(...new Uint8Array(fileBytes))
-  )
-}
-
-              }
-          ]
+    const result = await model.generateContent([
+      { text: prompt },
+      {
+        inline_data: {
+          mime_type: file.type,
+          data: base64Data
         }
-      ]
-    });
+      }
+    ]);
 
     const text = result.response.text();
-    return JSON.parse(text);
+
+    try {
+      return JSON.parse(text);
+    } catch {
+      console.warn("El modelo no devolvió JSON válido:", text);
+      return null;
+    }
 
   } catch (err) {
     console.error("Error en extractWorkOrderData(file):", err);
     return null;
   }
 }
+
 
 // -------------------------------
 // CHAT GENERAL PARA EL ASISTENTE
