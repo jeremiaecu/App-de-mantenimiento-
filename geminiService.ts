@@ -1,14 +1,27 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// TU CLAVE REAL
-const API_KEY = "AIzaSyBFAAsKUIzpjNt-onxUWFP_cJB-rSZtqhE";
+// --- 1. ROTACIÓN DE API KEYS ---
+const apiKeys = [
+  import.meta.env.VITE_API_KEY_1,
+  import.meta.env.VITE_API_KEY_2
+];
 
-const genAI = new GoogleGenerativeAI(API_KEY);
+function getRandomApiKey() {
+  return apiKeys[Math.floor(Math.random() * apiKeys.length)];
+}
 
-// --- 1. FUNCIÓN DE EXTRACCIÓN (Para las OTs) ---
+// --- 2. FUNCIÓN PARA CREAR INSTANCIA GEMINI ---
+function getGenAI() {
+  return new GoogleGenerativeAI(getRandomApiKey());
+}
+
+// -------------------------
+// EXTRACCIÓN DE DATOS DE OT
+// -------------------------
 export async function extractWorkOrderData(file: File) {
-  console.log("🚀 Iniciando extracción COMPLETA...");
   try {
+    console.log("🔍 Procesando archivo para extracción de datos...");
+
     const base64Data = await new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -17,56 +30,74 @@ export async function extractWorkOrderData(file: File) {
     });
 
     const base64Content = base64Data.split(',')[1];
-    const mimeType = file.type === 'application/pdf' ? 'application/pdf' : 'image/jpeg';
-    
+    const mimeType =
+      file.type === "application/pdf"
+        ? "application/pdf"
+        : "image/jpeg";
+
+    const genAI = getGenAI();
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `
-      Analiza este documento (OT). Extrae TODOS los datos posibles en JSON:
-      1. "numero_ot": Código de la orden (P000..., C000...).
-      2. "tipo_ot": PREVENTIVA o CORRECTIVA.
-      3. "nombre_equipo": Nombre del equipo.
-      4. "codigo_activo": Código de activo (Ej: SOL 095).
-      5. "tecnico_asignado": Nombre en "PROV. DE SERVICIO" o "Técnico".
-      
-      Responde SOLO JSON:
-      { "numero_ot": "", "tipo_ot": "", "nombre_equipo": "", "codigo_activo": "", "tecnico_asignado": "" }
+      Analiza este documento de Orden de Trabajo y extrae:
+
+      {
+        "numero_ot": "",
+        "tipo_ot": "",
+        "nombre_equipo": "",
+        "codigo_activo": "",
+        "tecnico_asignado": ""
+      }
+
+      Responde SOLO JSON válido.
     `;
 
     const result = await model.generateContent([
-      prompt, { inlineData: { data: base64Content, mimeType: mimeType } }
+      prompt,
+      { inlineData: { data: base64Content, mimeType } }
     ]);
+
     const response = await result.response;
-    const text = response.text().replace(/```json/g, '').replace(/```/g, '').trim();
+    const text = response
+      .text()
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+
     return JSON.parse(text);
 
   } catch (error) {
-    console.error("Gemini Error:", error);
-    return { numero_ot: "", tecnico_asignado: "", nombre_equipo: "", codigo_activo: "" };
+    console.error("❌ Error en Gemini:", error);
+    return {
+      numero_ot: "",
+      tipo_ot: "",
+      nombre_equipo: "",
+      codigo_activo: "",
+      tecnico_asignado: ""
+    };
   }
 }
 
-// --- 2. FUNCIÓN DE CHAT (LA QUE FALTABA) ---
+// -------------------------
+// CHAT GENERAL
+// -------------------------
 export async function chatWithAI(message: string, history: any[]) {
   try {
+    const genAI = getGenAI();
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    
-    // Convertimos el historial al formato de Gemini si es necesario
-    // (Por simplicidad iniciamos chat nuevo cada vez si el historial es complejo, 
-    // o pasamos el historial formateado correctamente)
+
     const chat = model.startChat({
-      history: history.map(h => ({
-        role: h.role === 'user' ? 'user' : 'model',
+      history: (history || []).map(h => ({
+        role: h.role === "user" ? "user" : "model",
         parts: [{ text: h.content }]
       }))
     });
 
     const result = await chat.sendMessage(message);
-    const response = await result.response;
-    return response.text();
-    
+    return result.response.text();
+
   } catch (error) {
-    console.error("Chat Error:", error);
-    return "Lo siento, tuve un problema al procesar tu mensaje.";
+    console.error("❌ Error en el chat:", error);
+    return "Ocurrió un problema al procesar tu mensaje.";
   }
 }
