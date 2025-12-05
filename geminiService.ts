@@ -21,7 +21,6 @@ export async function generateResponse(prompt: string) {
     const result = await model.generateContent(prompt);
     return result.response.text();
   } catch (error: any) {
-    // Si la API KEY se quedó sin cuota
     if (
       error.message &&
       error.message.toLowerCase().includes("quota") &&
@@ -29,18 +28,18 @@ export async function generateResponse(prompt: string) {
     ) {
       console.warn("API Key agotada. Cambiando a la siguiente...");
       currentKeyIndex++;
-      return generateResponse(prompt); // reintentar automáticamente
+      return generateResponse(prompt);
     }
 
     console.error("Error en Gemini:", error);
     throw error;
   }
 }
+
 // -------------------------------
-// EXTRAER DATOS DE UNA OT CON GEMINI
+// EXTRAER DATOS DE UNA OT DESDE BASE64
 // -------------------------------
-export async function extractWorkOrderDataFromBase64(imageBase64: string)
- {
+export async function extractWorkOrderDataFromBase64(imageBase64: string) {
   const prompt = `
 Eres un analista de órdenes de trabajo. A partir de la imagen proporcionada,
 extrae los siguientes datos:
@@ -76,6 +75,8 @@ Entrega el resultado exclusivamente en JSON con este formato:
     console.warn("La respuesta no fue JSON válido:", text);
     return null;
   }
+}
+
 // -------------------------------------------
 // EXTRAER DATOS UNIVERSAL (IMÁGENES o PDF)
 // -------------------------------------------
@@ -126,7 +127,6 @@ export async function extractWorkOrderData(file: File) {
   }
 }
 
-}
 // -------------------------------
 // CHAT GENERAL PARA EL ASISTENTE
 // -------------------------------
