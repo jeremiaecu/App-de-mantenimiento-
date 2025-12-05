@@ -79,12 +79,21 @@ Entrega el resultado exclusivamente en JSON con este formato:
 // -------------------------------
 // CHAT GENERAL PARA EL ASISTENTE
 // -------------------------------
-export async function chatWithAI(message: string) {
+export async function chatWithAI(message: string, history: any[] = []) {
   try {
     const client = createClient();
     const model = client.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    const result = await model.generateContent(message);
+    const result = await model.generateContent({
+      contents: [
+        ...history,
+        {
+          role: "user",
+          parts: [{ text: message }]
+        }
+      ]
+    });
+
     return result.response.text();
   } catch (error: any) {
     console.error("Error en chatWithAI:", error);
