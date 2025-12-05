@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchHistory, fetchPlanning } from '../services/sheetService';
+import { fetchHistory, fetchPlanning } from './sheetService';
 import { 
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
 } from 'recharts';
@@ -306,4 +306,5 @@ export function KPIDashboard() {
 
     </div>
   );
+
 }
