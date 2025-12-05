@@ -1,0 +1,7 @@
+{
+  "name": "Mantenimiento OT Digitalizer",
+  "description": "A Digitalization Center for Industrial Maintenance Work Orders. Upload photos of physical work orders to automatically extract data using Gemini AI, manage records, and export to Excel.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
