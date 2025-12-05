@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { createUser, fetchUsers, assignOT } from '../services/sheetService';
+import { createUser, fetchUsers, assignOT } from './sheetService';
 import { User } from '../types';
-import { extractWorkOrderData } from '../services/geminiService';
+import { extractWorkOrderData } from './geminiService';
 import { UserPlus, Save, Loader2, CheckCircle, ClipboardList, Upload, FileText, Trash2, AlertCircle } from 'lucide-react';
 
 interface AssignmentRow {
