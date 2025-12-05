@@ -76,3 +76,18 @@ Entrega el resultado exclusivamente en JSON con este formato:
     return null;
   }
 }
+// -------------------------------
+// CHAT GENERAL PARA EL ASISTENTE
+// -------------------------------
+export async function chatWithAI(message: string) {
+  try {
+    const client = createClient();
+    const model = client.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    const result = await model.generateContent(message);
+    return result.response.text();
+  } catch (error: any) {
+    console.error("Error en chatWithAI:", error);
+    throw error;
+  }
+}
