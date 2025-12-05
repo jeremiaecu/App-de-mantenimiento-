@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchPlanning } from '../services/sheetService';
+import { fetchPlanning } from './sheetService';
 import { Search, Eye, EyeOff } from 'lucide-react';
 
 export function PlanningTable() {
