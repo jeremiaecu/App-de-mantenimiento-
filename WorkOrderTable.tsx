@@ -1,5 +1,5 @@
 import React from 'react';
-import { OTData } from '../services/sheetService';
+import { OTData } from './sheetService';
 import { Eye, EyeOff, FileText, Calendar, User, Box, Tag, Layers } from 'lucide-react';
 
 interface WorkOrderTableProps {
