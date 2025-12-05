@@ -109,10 +109,13 @@ export async function extractWorkOrderData(file: File) {
             { text: prompt },
             {
               inlineData: {
-                mimeType: file.type,
-                data: Buffer.from(fileBytes).toString("base64")
+  mimeType: file.type,
+  data: btoa(
+    String.fromCharCode(...new Uint8Array(fileBytes))
+  )
+}
+
               }
-            }
           ]
         }
       ]
