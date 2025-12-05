@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageSquare, X, Send, Loader2, Bot } from 'lucide-react';
-import { chatWithAI } from '../services/geminiService';
+import { chatWithAI } from './geminiService';
 import { ChatMessage } from '../types';
 
 const ChatAssistant: React.FC = () => {
