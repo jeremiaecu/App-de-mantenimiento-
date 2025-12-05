@@ -39,7 +39,8 @@ export async function generateResponse(prompt: string) {
 // -------------------------------
 // EXTRAER DATOS DE UNA OT CON GEMINI
 // -------------------------------
-export async function extractWorkOrderData(imageBase64: string) {
+export async function extractWorkOrderDataFromBase64(imageBase64: string)
+ {
   const prompt = `
 Eres un analista de órdenes de trabajo. A partir de la imagen proporcionada,
 extrae los siguientes datos:
@@ -75,6 +76,56 @@ Entrega el resultado exclusivamente en JSON con este formato:
     console.warn("La respuesta no fue JSON válido:", text);
     return null;
   }
+// -------------------------------------------
+// EXTRAER DATOS UNIVERSAL (IMÁGENES o PDF)
+// -------------------------------------------
+export async function extractWorkOrderData(file: File) {
+  try {
+    const client = createClient();
+    const model = client.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    const fileBytes = await file.arrayBuffer();
+
+    const prompt = `
+      Eres un sistema que extrae datos de Órdenes de Trabajo.
+      Devuelve únicamente JSON estricto con este formato:
+
+      {
+        "numero_ot": "",
+        "tipo_ot": "",
+        "fecha": "",
+        "descripcion": ""
+      }
+
+      Si un dato no existe, déjalo vacío.
+    `;
+
+    const result = await model.generateContent({
+      contents: [
+        {
+          role: "user",
+          parts: [
+            { text: prompt },
+            {
+              inlineData: {
+                mimeType: file.type,
+                data: Buffer.from(fileBytes).toString("base64")
+              }
+            }
+          ]
+        }
+      ]
+    });
+
+    const text = result.response.text();
+    return JSON.parse(text);
+
+  } catch (err) {
+    console.error("Error en extractWorkOrderData(file):", err);
+    return null;
+  }
+}
+
 }
 // -------------------------------
 // CHAT GENERAL PARA EL ASISTENTE
